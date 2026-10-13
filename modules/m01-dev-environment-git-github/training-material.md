@@ -160,6 +160,7 @@ Create three files (full contents shown in the write-up):
 - `.nvmrc` — `24`
 
 ```bash
+cd ../..                            # back to the repo root
 git add modules/m01-dev-environment-git-github/
 git commit -m "chore: scaffold m01 module directory"
 git push
@@ -351,7 +352,7 @@ Run these before declaring the module done. Each maps to a Definition-of-Done it
 | Wrong Node version | Default ≠ `.nvmrc` pin | `fnm use` inside the module dir; confirm `node --version` = v24 |
 | `warning: LF will be replaced by CRLF` | Windows `core.autocrlf` | Cosmetic; note it, don't chase it |
 | `.env` shows in `git status` | `.gitignore` missing/misspelled | Check the entry exists in the *same directory*; it must never be staged |
-| PR merged but history looks flat | Squashed by default | Merge with `--merge`; reopen the PR flow if evidence is needed |
+| PR merged but history looks flat | Merged with a squash instead of a merge commit | Always name the strategy: `gh pr merge <n> --merge`; redo with a fresh branch if evidence is lost |
 | `gh: command not found` | CLI not installed | Install GitHub CLI, then `gh auth login` |
 | `npm ERR!` / native build failures | Missing build tools | Install them now (they block Module 7 onward) — out of scope today, but don't skip |
 
@@ -367,8 +368,8 @@ Answers in the key below — try first, unaided.
 4. You resolved the conflict. Which two commands finish the merge?
 5. Write a valid Conventional Commit for: a new CLI flag; a documentation-only fix; removing
    dead code with no behaviour change.
-6. The PR needs 3 commits but has 2. The DoD also mentions squash merges. Which merge strategy
-   do you use, and why?
+6. This PR must show its conflict resolution in history. Which merge strategy do you use, and
+   why?
 7. A commit you already pushed to `main` introduced a bug. `revert` or `reset`? Why?
 8. You committed a real `.env` locally but have **not** pushed. What are your options?
 9. `git log --oneline --graph` shows a commit with two lines joining beneath it. What is that

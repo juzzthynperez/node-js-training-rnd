@@ -202,8 +202,10 @@ Recorded only what actually happened in this build:
   `.nvmrc`, so a plain `node ...` would have run the wrong version. `fnm use` only affects a
   shell that has fnm's env loaded, so for a one-shot verified run I used
   `fnm exec --using 24 -- node ...` — observed output: `v24.21.0`.
-- **`gh pr merge` defaults to squash.** Without an explicit `--merge` the conflict-resolution
-  commit would have vanished from `main` — the flag is not optional for this deliverable.
+- **The merge strategy must be named explicitly.** I passed `--merge` on purpose: had this PR
+  been squashed instead, the conflict-resolution commit would have vanished from `main`.
+  `gh pr merge` prompts for a strategy (merge commit, squash, or rebase), so the safe habit is
+  to always name it on the command line rather than rely on a prompt.
 - **CRLF warnings on every `git add`** ("LF will be replaced by CRLF") on Windows. Cosmetic
   here (`core.autocrlf`), but it makes output noisier than expected.
 - **Auto-merge sounded scarier than it was.** Git reported `CONFLICT (content)` and left
