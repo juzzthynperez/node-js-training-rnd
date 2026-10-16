@@ -104,7 +104,7 @@ thumb: shared branch → `revert`; your own unpushed mistake → `reset`.
   covers `node_modules`, `.env`, `*.db`, Prisma generated client (`src/generated/`), `dist`,
   `coverage` (plus the program's private `evidence/`).
 - **`.env.example` present ✓** —
-  [.env.example](https://github.com/juzzthynperez/node-js-training-ground/blob/main/.env.example),
+  [.env.example](https://github.com/juzzthynperez/node-js-training-ground/blob/main/modules/m01-dev-environment-git-github/.env.example),
   with a comment explaining the habit even with nothing to configure yet.
 - **`git revert` vs `git reset`** — narrated above, unaided.
 - Private evidence (command logs, conflict markers as-planted, toolchain versions) lives in
