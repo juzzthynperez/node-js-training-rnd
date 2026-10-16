@@ -15,9 +15,13 @@
   --version`), Git 2.55.0, Node v22.23.2 managed by **fnm 1.39.0** (which also has the
   cohort's v24.21.0 installed and ready), and **Bruno 4.2.1** for API testing. Two real
   findings from verifying instead of assuming: fnm — not nvm — is the version manager on
-  this Windows machine, and Bruno is a GUI app with **no `bru` CLI on PATH**, so it can't be
-  version-checked from the terminal at all; I confirmed it via winget/installed-apps
-  instead. A checklist item is only done when you've actually made the tool answer.
+  this Windows machine, and the Bruno I installed is the **desktop app**, which doesn't
+  bundle a CLI, so there was no `bru` on PATH to version-check — I confirmed it via
+  winget/installed-apps instead. (Worth knowing for later: Bruno *does* ship a CLI as a
+  separate npm install, `@usebruno/cli` — I didn't need it here, and the desktop app was
+  enough for M01; it's a preference, and the CLI becomes interesting once there are
+  collections worth scripting in M05+.) A checklist item is only done when you've actually
+  made the tool answer.
 - **`.nvmrc` pinning Node 24** (the cohort version) and **`.env.example`** — committed on the
   feature branch in one `chore:` commit.
 - **`hello-node.js`** — prints a greeting and the runtime version. Ran it before committing:

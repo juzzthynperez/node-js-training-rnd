@@ -3,9 +3,10 @@
 ## Verify tools by how they actually answer, not how a guide says to
 - Version managers differ per machine: this Windows box uses **fnm**, not nvm. Probing the
   wrong name (`nvm: command not found`) is not a broken install.
-- **Bruno is a GUI app with no `bru` CLI on PATH** — verify via `winget list Bruno` /
-  installed-apps registry, or by opening it. Don't require a version print from a tool that
-  has none.
+- Desktop apps may have no CLI on PATH out of the box: **Bruno's desktop app doesn't
+  bundle one** — verify via `winget list Bruno` / installed-apps, or by opening it. Bruno
+  *does* ship a separate CLI (`npm i -g @usebruno/cli` → `bru`) for those who prefer the
+  terminal — flavor is a preference; what matters is verifying *your* install actually works.
 - A checklist item is done only when the tool *answered* — probe, don't assume.
 
 ## `git restore` reads from the index, not from HEAD

@@ -67,7 +67,7 @@ A Node.js project is usually touched by four kinds of tool at once: an **editor*
 2. Install it and open it once. You'll see a **Welcome** tab — you can close it.
 3. Open a folder via **File → Open Folder…** — this becomes your project's home.
 
-Two habits now, so they're automatic later: VS Code has a built-in terminal (**Terminal → New Terminal**), and `Ctrl+`` ` toggles it. You'll use it constantly.
+Two habits now, so they're automatic later: VS Code has a built-in terminal (**Terminal → New Terminal**), and `` Ctrl+` `` (the backtick key, top-left of the keyboard) toggles it. You'll use it constantly.
 
 ### Installing Git
 
@@ -113,6 +113,15 @@ Projects pin different Node versions. A **version manager** installs any version
 
 (Or [fnm](https://github.com/Schniz/fnm) everywhere — it's faster and works the same way.)
 
+Two caveats if you're on Windows:
+
+- **nvm-windows may need the exact version, not the short form.** If `nvm use 24` answers
+  with *"Could not find or select"*, run `nvm list` to see your installed versions and use
+  the full one it shows (e.g. `nvm use 24.21.0`). fnm and macOS/Linux nvm accept the short
+  form — this is a nvm-windows quirk, not a broken install.
+- **Check `nvm list` (or `fnm list`) after installing.** Seeing Node 24 in the list proves
+  the install worked, whichever tool you chose.
+
 Install the version this program pins (check with your trainer; current cohort: **Node 24 LTS**):
 
 ```bash
@@ -130,6 +139,14 @@ echo 24 > .nvmrc
 ```
 
 Now, inside that project's folder, `nvm use` (no argument) reads `.nvmrc` and switches to the pinned version automatically. The whole team uses the same Node version without anyone having to remember it — the file remembers.
+
+**Windows caveat — don't trust the redirect blindly.** `echo 24 > .nvmrc` behaves slightly differently across Windows shells: in **cmd.exe** it writes `24` *with a trailing space*, and in **PowerShell** it can write the file in UTF-16 encoding with a BOM. Some version managers then fail to parse the pin. After creating the file, always look at it:
+
+```bash
+cat .nvmrc        # should print exactly: 24
+```
+
+If yours shows `24 ` (trailing space) or unreadable characters, just create the file in VS Code instead and type `24` on one line — that's the safe, shell-independent way.
 
 **Critical distinction:** creating `.nvmrc` does *not* switch your current version. It's a declaration; the version manager acts on it. Always confirm with `node --version` after `nvm use`.
 
@@ -167,11 +184,15 @@ Two real-world quirks worth knowing before they surprise you:
   is not a broken install, just the wrong name.) Also confirm it actually *manages* the
   cohort version: `fnm list` / `nvm ls` should show Node 24 installed, not just your
   current default.
-- **Bruno is a desktop app and has no command-line tool.** There is no `bru --version` to
-  run — you verify Bruno by opening it. Don't be alarmed if every other tool answers in
-  the terminal and Bruno doesn't: it isn't installed wrong, it just doesn't live in the
-  terminal. (Check it via your OS's installed-apps list or package manager — e.g.
-  `winget list Bruno` on Windows.)
+- **Bruno comes in two flavors — pick either.** The **desktop app** (what this program's
+  exercises use — install from [bruno.com](https://www.usebruno.com) or your package
+  manager, e.g. `winget install Bruno.Bruno` on Windows) doesn't bundle a command-line
+  tool, so there's nothing to `--version` from a terminal — verify it by opening the app,
+  or check your installed-apps list. If you *prefer* working from the terminal, Bruno also
+  ships an official CLI as a separate install (`npm install -g @usebruno/cli`, which gives
+  you the `bru` command — `bru --version` then works). Same tool, two doors: the desktop
+  app for clicking through requests, the CLI for scripting and CI (you'll see the CLI's
+  value in M09's CI module). Neither install is "more correct" — it's a preference.
 
 ✅ **Checkpoint:** every command that *can* print a version does, and Bruno opens. Do
 **Exercise 1** in §10.
@@ -718,7 +739,7 @@ Review reads for correctness, clarity, and safety — line by line, via GitHub's
 
 ### Merging Changes into the Main Branch
 
-Green checks, approval, no unresolved threads → **Merge pull request**. Choose a **merge commit** for this module (it preserves the conflict story in history; "Squash" would flatten those 5 commits into one and hide the very thing you're demonstrating). After merging: **delete the branch** — it's merged; the history lives in `main`.
+Green checks, approval, no unresolved threads → **Merge pull request**. Choose a **merge commit** rather than "Squash" when the history tells a story worth keeping (a squash flattens every branch commit into one and hides it — e.g. the conflict-and-resolution pattern you practiced here). After merging: **delete the branch** — it's merged; the history lives in `main`.
 
 ✅ **Checkpoint:** you can recite the 7 steps of GitHub Flow from memory. Do **Exercises 7 and 8** in §10.
 
@@ -750,7 +771,7 @@ feat: add hello-node script printing a greeting and runtime version
 fix: resolve greeting conflict by combining both wordings
 ```
 
-Why it matters: the type is machine-readable (release notes and automation can group changes by kind) and human-scannable (`git log --oneline` becomes a table of contents). `feat` after the colon boundary, lower case, no period.
+Why it matters: the type is machine-readable (release notes and automation can group changes by kind) and human-scannable (`git log --oneline` becomes a table of contents). Type **before** the colon (`feat`), description **after** it — lower case, imperative, no trailing period.
 
 ### Keeping Changes Small and Focused
 
