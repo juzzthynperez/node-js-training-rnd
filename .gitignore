@@ -1,8 +1,11 @@
 .DS_Store
 .claude/
 .vscode/
+.opencode/
 
 graphify-out/
+
+opencode.json
 
 node_modules/
 dist/

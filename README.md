@@ -17,6 +17,12 @@ module. Stages M02 and M03 are the ones that actually teach what a JavaScript/No
 | `modules/` | The nine stage folders (M01–M09), each with a brief, a checklist, and a write-up template |
 | `modules/m10-capstone/` | The capstone, with its own brief, checklist, and write-up template |
 
+This repository is documentation only. All hands-on code for every module lives in the
+companion public repository [node-js-training-ground](https://github.com/juzzthynperez/node-js-training-ground),
+where module exercises are committed and their branch/PR history is the checkpoint trail.
+Trainer-private evidence captures stay local to that repo's gitignored `evidence/` folder and
+are never committed.
+
 ## Ground rules (every stage)
 
 - **Free tools only. No Docker, no paid licences.**
@@ -66,12 +72,15 @@ problems early instead of in a finished draft nobody wants to redo.
 | File | Who writes it | Purpose |
 | --- | --- | --- |
 | `brief.md` | Your trainer | Objective, scope, stack constraints, the deliverable, a lab (goal, steps, what to capture), and definition of done. No answers. Do not edit it. |
-| `write-up-template.md` | You | Blank at first; filled in as you build, not after. |
+| `write-up-template.md` | Your trainer | The blank seven-section structure. Stays blank as the reusable template for the next cohort. |
+| `write-up.md` | You | Your filled-in write-up, drafted as you build (never after), following the template's sections — your real experience, decisions, and checkpoint evidence. |
+| `training-material.md` | You | The learner-facing module designed from your experience: explanations, examples, exercises, troubleshooting, and knowledge checks for the next cohort's trainees. |
 | `tasks.md` | Generated from `brief.md` via `/trainee-task-planner` | An ordered checklist mirroring the brief — setup, then research (M02–M09), then build (Day 3/4/5 for the M10 capstone), then verify, then write-up. You tick the boxes; it holds no answers and no steps you weren't already told. |
 
-Your Node.js code lives outside this repository, in your own GitHub repo (the public training repo
-you set up in M01). Link it from the header of your write-up. The capstone folder has the same
-three files.
+Your Node.js code lives outside this repository, in the public
+[node-js-training-ground](https://github.com/juzzthynperez/node-js-training-ground) repository
+you set up in M01. Link it from the header of your write-up. The capstone folder follows the same
+convention.
 
 ## Stages
 
