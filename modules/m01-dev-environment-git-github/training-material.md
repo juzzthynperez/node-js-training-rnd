@@ -115,10 +115,12 @@ Projects pin different Node versions. A **version manager** installs any version
 
 Two caveats if you're on Windows:
 
-- **nvm-windows may need the exact version, not the short form.** If `nvm use 24` answers
-  with *"Could not find or select"*, run `nvm list` to see your installed versions and use
-  the full one it shows (e.g. `nvm use 24.21.0`). fnm and macOS/Linux nvm accept the short
-  form — this is a nvm-windows quirk, not a broken install.
+- **If `nvm use 24` says the version isn't installed, don't panic — check the list.**
+  nvm-windows resolves the short form `24` to your highest installed `24.x.y`, but if
+  nothing matches it errors with a message like `Version not installed. Run "nvm ls" to
+  view installed versions.` (older releases may say `node v… is not installed`). The fix
+  is always the same: run `nvm list`, then use the full version it shows
+  (e.g. `nvm use 24.21.0`). That's a nvm-windows quirk, not a broken install.
 - **Check `nvm list` (or `fnm list`) after installing.** Seeing Node 24 in the list proves
   the install worked, whichever tool you chose.
 
@@ -138,15 +140,18 @@ A version manager's real power: each project can **declare** its Node version in
 echo 24 > .nvmrc
 ```
 
-Now, inside that project's folder, `nvm use` (no argument) reads `.nvmrc` and switches to the pinned version automatically. The whole team uses the same Node version without anyone having to remember it — the file remembers.
+Now, inside that project's folder, `nvm use` (no argument) reads `.nvmrc` and switches to the pinned version automatically — **on macOS/Linux nvm and fnm**. On **nvm-windows**, passing the version is required: read it off the file yourself (`nvm use 24`, using whatever `.nvmrc` pins). Either way, the whole team uses the same Node version without anyone having to remember it — the file remembers.
 
-**Windows caveat — don't trust the redirect blindly.** `echo 24 > .nvmrc` behaves slightly differently across Windows shells: in **cmd.exe** it writes `24` *with a trailing space*, and in **PowerShell** it can write the file in UTF-16 encoding with a BOM. Some version managers then fail to parse the pin. After creating the file, always look at it:
+**Windows caveat — don't trust the redirect blindly.** `echo 24 > .nvmrc` behaves slightly differently across Windows shells: in **cmd.exe** it writes `24` *with a trailing space*, and in **Windows PowerShell 5.1** it writes the file as UTF-16 with a BOM. Both can make version managers fail to parse the pin. (PowerShell 7+ writes plain UTF-8 — no trap there.)
+
+After creating the file, **look at its actual bytes** — and pick the check for your shell:
 
 ```bash
-cat .nvmrc        # should print exactly: 24
+cat .nvmrc        # macOS/Linux, fnm, PowerShell 7+ — should print exactly: 24
+type .nvmrc       # cmd.exe — same expectation
 ```
 
-If yours shows `24 ` (trailing space) or unreadable characters, just create the file in VS Code instead and type `24` on one line — that's the safe, shell-independent way.
+One trap in the trap: **PowerShell's `cat` (Get-Content) auto-detects the UTF-16 BOM and still prints a clean `24`** — it hides the problem rather than showing it. If you're on Windows PowerShell 5.1, don't trust the printout; open the file in **VS Code** and check the encoding shown in the status bar (bottom-right), or just create `.nvmrc` in VS Code and type `24` on one line — the safe, shell-independent way that sidesteps both traps entirely.
 
 **Critical distinction:** creating `.nvmrc` does *not* switch your current version. It's a declaration; the version manager acts on it. Always confirm with `node --version` after `nvm use`.
 
@@ -191,8 +196,9 @@ Two real-world quirks worth knowing before they surprise you:
   or check your installed-apps list. If you *prefer* working from the terminal, Bruno also
   ships an official CLI as a separate install (`npm install -g @usebruno/cli`, which gives
   you the `bru` command — `bru --version` then works). Same tool, two doors: the desktop
-  app for clicking through requests, the CLI for scripting and CI (you'll see the CLI's
-  value in M09's CI module). Neither install is "more correct" — it's a preference.
+  app for clicking through requests, the CLI for scripting and CI once you have request
+  collections worth automating (that starts in M05). Neither install is "more correct" —
+  it's a preference.
 
 ✅ **Checkpoint:** every command that *can* print a version does, and Bruno opens. Do
 **Exercise 1** in §10.
