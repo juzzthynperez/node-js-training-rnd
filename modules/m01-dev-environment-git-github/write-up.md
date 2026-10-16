@@ -11,7 +11,13 @@
 - **Public training repo** `node-js-training-ground`, created empty and pushed with the
   ignore rule (`evidence/`) already in the root commit — the defensive move came *before*
   there was anything to defend against, which is the whole point of the habit.
-- **Toolchain confirmed:** Git 2.55.0, Node on PATH, terminal (Git Bash on Windows) working.
+- **Toolchain verified end to end** (not just installed): VS Code 1.142.0 (`code
+  --version`), Git 2.55.0, Node v22.23.2 managed by **fnm 1.39.0** (which also has the
+  cohort's v24.21.0 installed and ready), and **Bruno 4.2.1** for API testing. Two real
+  findings from verifying instead of assuming: fnm — not nvm — is the version manager on
+  this Windows machine, and Bruno is a GUI app with **no `bru` CLI on PATH**, so it can't be
+  version-checked from the terminal at all; I confirmed it via winget/installed-apps
+  instead. A checklist item is only done when you've actually made the tool answer.
 - **`.nvmrc` pinning Node 24** (the cohort version) and **`.env.example`** — committed on the
   feature branch in one `chore:` commit.
 - **`hello-node.js`** — prints a greeting and the runtime version. Ran it before committing:
@@ -91,6 +97,14 @@ thumb: shared branch → `revert`; your own unpushed mistake → `reset`.
 - **Conflict markers silently break the script.** After the conflict, the file *contains*
   `<<<<<<<` lines — running it fails confusingly if you try before cleaning the file. The fix
   isn't only choosing words; it's deleting every marker line.
+- **`git restore` does different things depending on the file's room.** While practicing
+  restore/stash for real, I stashed a *staged new* file and, after `git stash pop`, ran
+  `git restore` on it expecting it to vanish — it stayed. That's correct: `restore` reads
+  from the *index*, and the index still held the staged copy. On a *tracked, edited* file it
+  works as everyone expects — I verified it properly this time by hash: after restoring an
+  edit to `hello-node.js`, the working blob matched `HEAD:hello-node.js` exactly
+  (`b2ed0f61` on both sides). "Undo" in Git always means "restore to some room's version" —
+  the flag (or lack of it) decides *which* room.
 - **`git merge` prints `Automatic merge failed` even when the conflict is trivial** — the
   emotional weight of the message is not proportional to the actual work.
 

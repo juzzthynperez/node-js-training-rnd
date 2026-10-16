@@ -149,16 +149,32 @@ Two more truths: commands are case-sensitive (`Git` ≠ `git`), and the folder y
 
 ### Verifying Your Setup
 
-Run all four — every line should print a version, not an error:
+Run these — every line should print a version, not an error:
 
 ```bash
 git --version
 node --version
+fnm --version       # your version manager (nvm / fnm / nvm-windows — whichever you installed)
 code --version      # VS Code, if its command-line tool is installed
 pwd                 # you exist somewhere sensible
 ```
 
-✅ **Checkpoint:** all four commands print versions. Do **Exercise 1** in §10.
+Two real-world quirks worth knowing before they surprise you:
+
+- **Your version manager may not be the one in the guide.** The tables above list nvm and
+  fnm as the common choices; whichever one you installed is *yours* — verify with its name,
+  not with whatever a tutorial mentions. (`nvm: command not found` when you installed fnm
+  is not a broken install, just the wrong name.) Also confirm it actually *manages* the
+  cohort version: `fnm list` / `nvm ls` should show Node 24 installed, not just your
+  current default.
+- **Bruno is a desktop app and has no command-line tool.** There is no `bru --version` to
+  run — you verify Bruno by opening it. Don't be alarmed if every other tool answers in
+  the terminal and Bruno doesn't: it isn't installed wrong, it just doesn't live in the
+  terminal. (Check it via your OS's installed-apps list or package manager — e.g.
+  `winget list Bruno` on Windows.)
+
+✅ **Checkpoint:** every command that *can* print a version does, and Bruno opens. Do
+**Exercise 1** in §10.
 
 ---
 
@@ -380,6 +396,21 @@ git restore --staged hello-node.js
 ```
 
 The `--staged` flag is the whole difference: "take it out of staging" vs "throw away the edits."
+
+One subtlety that catches almost everyone: `git restore <file>` restores **from the staging
+area**, so it behaves differently depending on where the file currently lives:
+
+- **Tracked file with uncommitted edits** — the staging area holds the last-committed
+  version, so `git restore` puts the file back to it. The edits are gone. (You can *prove*
+  it worked: `git hash-object <file>` will equal `git rev-parse HEAD:<file>`.)
+- **New file you just staged** (`git add`ed for the first time) — the staging area holds
+  *that new file*, so `git restore` restores the staged copy: the file **stays**. To make a
+  staged new file disappear entirely, take it out of staging first
+  (`git restore --staged <file>`, then delete it from disk).
+
+The mental model, one last time: "restore" always means *copy from a room* — with no flag,
+that room is the staging area, not the last commit. When a restore "didn't work," check
+which room the version you expected actually lives in.
 
 ### Temporarily Setting Changes Aside
 
