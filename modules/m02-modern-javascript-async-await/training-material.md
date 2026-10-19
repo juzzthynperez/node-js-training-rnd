@@ -2,9 +2,9 @@
 
 **Week 1 · Days 2–4 · 10 hours**
 
-## 1. Welcome to Modern JavaScript & Async/Await
+## 1. Getting Started
 
-### Learning objectives and expected outcomes
+### What you'll learn and build
 
 By the end of this module you will be able to:
 
@@ -24,42 +24,13 @@ timings, a refactored callback example, and a write-up of your own experience �
 ability to predict the output order of a mixed `setTimeout`/promise/`await` snippet and
 say *why*.
 
-### What this module builds on from M01
+### Connecting M02 to the skills learned in M01
 
 M01 gave you the toolchain: a terminal that answers, `node` that runs a file, and the
 **branch → commit → PR → merge** habit. M02 reuses all of it — every build step here ends
-in the same workflow you practiced. The only new workflow piece: this module adds a
-**research → build → verify → document** loop *inside* the branch. You research a concept
-before you need it, build a utility that uses it, verify it with an executable check, and
-record what you learned while it is still fresh.
+in the same workflow you practiced.
 
-### Understanding the Async toolkit deliverable
-
-The deliverable is **one ES module** containing four small utilities that are easy to get
-*subtly* wrong:
-
-| Utility | Signature | The trap it hides |
-| --- | --- | --- |
-| `sleep` | `sleep(ms)` | Timing checks that lie about how long they waited |
-| `retry` | `retry(fn, { retries, delayMs })` | Swallowing the final error, or not actually delaying |
-| `withTimeout` | `withTimeout(promise, ms)` | Creating *unhandled* rejections while racing a timeout |
-| `mapLimit` | `mapLimit(items, limit, fn)` | Exceeding the limit, losing input order, or vanishing errors |
-
-Each utility ships with a `node:assert` self-check **in the same file**. The lab also
-includes a sequential-vs-parallel timing comparison against JSONPlaceholder and a
-callback-style `node:fs` routine refactored to `async`/`await`.
-
-### Research, build, verify, and document workflow
-
-1. **Research** the concepts a build step needs — *before or alongside* the build, never
-   after. You cannot look things up honestly once the code already works and you just
-   want the box ticked.
-2. **Build** one small piece.
-3. **Verify** with an executable check (`node:assert`) or a measurement — "it seems
-   right" is not verification.
-4. **Document** what happened — decisions, surprises, numbers — while they are fresh.
-
-### Required tools and constraints
+### Project setup and tool requirements
 
 - **Plain JavaScript only.** No TypeScript in Week 1 (that arrives in M04).
 - **ES modules** (`import`/`export`) — no CommonJS `require` in this module.
@@ -76,11 +47,42 @@ callback-style `node:fs` routine refactored to `async`/`await`.
 > in the repo folder or run via `fnm exec --using=24 -- node your-file.js`. Never assume
 > the config file made it true; ask the tool.
 
+### Your goal: build a working Async Toolkit
+
+The deliverable is **one ES module** containing four small utilities that are easy to get
+*subtly* wrong:
+
+| Utility | Signature | The trap it hides |
+| --- | --- | --- |
+| `sleep` | `sleep(ms)` | Timing checks that lie about how long they waited |
+| `retry` | `retry(fn, { retries, delayMs })` | Swallowing the final error, or not actually delaying |
+| `withTimeout` | `withTimeout(promise, ms)` | Creating *unhandled* rejections while racing a timeout |
+| `mapLimit` | `mapLimit(items, limit, fn)` | Exceeding the limit, losing input order, or vanishing errors |
+
+Each utility ships with a `node:assert` self-check **in the same file**. The lab also
+includes a sequential-vs-parallel timing comparison against JSONPlaceholder and a
+callback-style `node:fs` routine refactored to `async`/`await`.
+
+You'll work one loop all module long — this module adds it *inside* the M01 branch
+workflow:
+
+1. **Research** the concepts a build step needs — *before or alongside* the build, never
+   after. You cannot look things up honestly once the code already works and you just
+   want the box ticked. Sections 2–4 are your research.
+2. **Build** one small piece.
+3. **Verify** with an executable check (`node:assert`) or a measurement — "it seems
+   right" is not verification.
+4. **Document** what happened — decisions, surprises, numbers — while they are fresh.
+
 ---
 
-## 2. Modern JavaScript Fundamentals
+## 2. Writing Modern JavaScript
 
-### `const` vs `let`, scope, and closures
+This section is your language research: work through it with a scratch file and tick the
+research boxes in `tasks.md` only when you've actually run the example, not when you've
+read it.
+
+### Variables, scope, closures, arrow functions, and `this`
 
 `const` is the default: a binding you will not reassign. `let` when the value must change
 (loop counters, accumulators). `var` is legacy — function-scoped and hoisted in confusing
@@ -108,11 +110,8 @@ next(); // 2                   // the count survived makeCounter() returning
 Closures power every callback you write — and they are why a callback can still see
 `limit` long after the surrounding function returned.
 
-### Arrow functions, `this`, and template literals
-
 ```js
 const double = (n) => n * 2;            // implicit return, no `() => { return }` needed
-const describe = (name) => `hello ${name}`;  // template literal: `${}` interpolates
 ```
 
 Arrows do two special things: they **return implicitly** (single expression) and they
@@ -120,7 +119,11 @@ Arrows do two special things: they **return implicitly** (single expression) and
 second rule makes them ideal as callbacks (`items.map((n) => n * 2)`) and wrong as object
 methods when you need the object as `this`.
 
-### Destructuring, spread/rest, and default parameters
+### Template literals, destructuring, spread/rest, and default parameters
+
+```js
+const describe = (name) => `hello ${name}`;  // template literal: `${}` interpolates
+```
 
 ```js
 const { retries = 3, delayMs = 100 } = options;   // defaults when undefined
@@ -132,7 +135,7 @@ const show = (name, { loud = false } = {}) => {}; // destructured param + its ow
 Common mistakes: destructuring a property that is `undefined` (defaults only apply to
 `undefined`, **not** to `null`), and mutating the object you spread instead of copying it.
 
-### Optional chaining, nullish coalescing, and `??=`
+### Optional chaining, nullish coalescing, truthy/falsy values, and equality
 
 ```js
 const ms = config?.timeout?.value;   // undefined instead of TypeError if anything is nullish
@@ -142,8 +145,6 @@ settings.retries ??= 3;              // assign ONLY if currently null/undefined
 
 The trap people fall into: using `||` for defaults and silently losing falsy-but-valid
 values — `retries || 3` turns a deliberate `0` into `3`. Use `??`.
-
-### Truthy/falsy values and equality pitfalls
 
 Falsy: `false`, `0`, `-0`, `0n`, `''`, `null`, `undefined`, `NaN` — **everything else is
 truthy**, including `'0'`, `[]`, and `{}`.
@@ -156,7 +157,7 @@ if (value) { /* runs for 'hello', [], {} — did you mean "non-empty"? */ }
 default to `===`; reach for `==` only when you genuinely want its coercion documented in
 a comment. And remember: `NaN === NaN` is `false` — use `Number.isNaN(x)`.
 
-### Common mistakes and practical examples
+**Common mistakes and practical examples**
 
 - Reassigning a `const` binding (the *binding* is fixed; the object it points at can
   still change).
@@ -168,11 +169,7 @@ a comment. And remember: `NaN === NaN` is `false` — use `Number.isNaN(x)`.
 > returns `` `${name} (${plan}, ${credits} credits)` ``, and one test call for a user with
 > `credits: 0` — confirm the `0` survives.
 
----
-
-## 3. Working with Arrays and Objects
-
-### Transforming data with `map`, `filter`, and `flatMap`
+### Array methods and non-mutating array helpers
 
 ```js
 const ids = [1, 2, 3];
@@ -186,8 +183,6 @@ All three are **non-mutating**: they return new arrays. `flatMap` is the fix for
 classic `map` + `flat` two-step (and for building one-to-many mappings without nested
 arrays).
 
-### Finding and checking values with `find`, `some`, and `every`
-
 ```js
 users.find((u) => u.id === 7);      // the item or undefined
 users.some((u) => u.admin);         // at least one?   → boolean
@@ -198,8 +193,6 @@ users.every((u) => u.active);       // all of them?    → boolean
 most common mistake in this group (`if (arr.find(...))` "works" until the element is
 falsy — prefer `arr.some(...)` for existence).
 
-### Aggregating data with `reduce`
-
 ```js
 const total = prices.reduce((sum, price) => sum + price, 0);
 ```
@@ -207,8 +200,6 @@ const total = prices.reduce((sum, price) => sum + price, 0);
 The four-arg callback: `(accumulator, item, index, array)`. Always pass the initial value
 — without it, `reduce` on an empty array throws, and the first item is silently used as
 the seed. `reduce` builds anything: sums, counts, maps, even your own `group by`.
-
-### Non-mutating helpers: `toSorted`, `toReversed`, and `with`
 
 ```js
 const sorted = nums.toSorted((a, b) => a - b);  // copy, original untouched
@@ -220,7 +211,7 @@ These exist because `sort`, `reverse`, and `arr[i] = x` **mutate in place** — 
 bug factory when two functions share one array. New rule: `to*` versions for copies,
 originals only when you mean to change them.
 
-### Copying data with `structuredClone`
+### `structuredClone`, object grouping, `Map`, and `Set`
 
 ```js
 const backup = structuredClone(state);   // deep copy: nested objects/arrays are new too
@@ -229,8 +220,6 @@ const backup = structuredClone(state);   // deep copy: nested objects/arrays are
 Spread (`{ ...obj }`) copies **one level** — nested objects are still shared references.
 `structuredClone` goes all the way down (no functions, class instances, or DOM nodes
 allowed — it throws on those).
-
-### Grouping data with `Object.groupBy` and `Map.groupBy`
 
 ```js
 const byPlan = Object.groupBy(users, (u) => u.plan);
@@ -246,12 +235,6 @@ etc.); use `Map.groupBy` when keys aren't strings.
 > { region: 'EU', amt: 3 }]` and compute total-per-region **three ways**: `reduce`,
 > `groupBy` + a `map` over entries, and `flatMap` + `filter`. Same answer, three shapes.
 
----
-
-## 4. Maps, Sets, Classes, and Error Handling
-
-### Choosing between `Map`, `Set`, and ordinary objects
-
 | Structure | Use when | Key/lookup notes |
 | --- | --- | --- |
 | Plain object | Fixed shape, string keys (config, JSON data) | Keys must be strings/symbols; no size |
@@ -261,8 +244,6 @@ etc.); use `Map.groupBy` when keys aren't strings.
 Objects are still right for data you will `JSON.stringify`. Reach for a `Map` in code
 like a cache or a tally — `seen.has(id)` reads clearer than `Object.hasOwn(seen, id)` and
 keys can be anything (even objects or functions).
-
-### Modern `Set` methods
 
 ```js
 const a = new Set([1, 2, 3]), b = new Set([2, 3, 4]);
@@ -277,7 +258,7 @@ They all return **new Sets** — the set methods don't mutate, unlike their math
 namesakes in some other languages. Classic uses: unique merge of two tag lists, "who
 answered everything", removing known-bad ids.
 
-### Classes, `#private` fields, getters, and setters
+### Classes, private fields, getters/setters, and error handling
 
 ```js
 class RetryPolicy {
@@ -294,8 +275,6 @@ derive a value on read (`get fullName()`); setters let you validate on write
 also mutate inside the getter will recurse — and destructuring an object **invokes**
 getters, while spreading `{...obj}` copies their *current* values.
 
-### `try/catch/finally`
-
 ```js
 try {
   await withTimeout(fetchSomething(), 200);
@@ -309,8 +288,6 @@ try {
 Rules of thumb: `catch` must do *something* (log, translate, rethrow) — an empty one is a
 program that pretends nothing happened. `finally` is for cleanup that must run either way
 (closing files, clearing timers, releasing locks).
-
-### Creating custom error classes
 
 ```js
 class TimeoutError extends Error {
@@ -327,8 +304,6 @@ matching English strings (`/timed out/i`) breaks the first time you reword the m
 `error instanceof TimeoutError` is a contract; a message is not. Always extend `Error`
 (directly or through your own base) — extending nothing makes `instanceof Error` false and
 loses the stack.
-
-### Preserving error context with `Error`'s `cause` option
 
 ```js
 try {
@@ -347,20 +322,14 @@ debug: `console.error(err.cause ?? err)`.
 > it from a function, and catch it two ways: `instanceof` branch, then print
 > `error.cause` after wrapping it with `new Error('save failed', { cause: error })`.
 
----
-
-## 5. ES Modules and Project Organization
-
-### Understanding modules and file boundaries
+### ES modules and named vs default exports
 
 A module is a file with `import`/`export` — its own scope. Nothing leaks out unless you
 export it, which turns file boundaries into API boundaries. Two side effects worth
 knowing: modules are **deferred** (parsed before the rest of the page/main script runs)
 and **cached** (import the same file twice — one instance, top-level code runs once).
 Top-level code running on import is a feature (shared state) and a footgun (side effects
-you didn't mean to trigger — see the self-check guard in §10).
-
-### Named exports vs default exports
+you didn't mean to trigger — see the entry-point guard in §5).
 
 ```js
 export function sleep(ms) { /* ... */ }      // named: explicit, renameable, tree-shakable
@@ -374,44 +343,9 @@ Rule of thumb: **named exports** for libraries of utilities (discoverable, expli
 only. A default export suits a file whose single main product is one thing (a component,
 a router). Mixing both invites confusion about what a file "is".
 
-### Importing and exporting toolkit functions
-
-```js
-// async-toolkit.js
-export class TimeoutError extends Error { /* ... */ }
-export function sleep(ms) { /* ... */ }
-export function retry(fn, opts) { /* ... */ }
-
-// timing-comparison.js
-import { sleep } from './async-toolkit.js';   // paths include the ./ and the extension
-```
-
 ESM path rules that trip beginners: **relative paths need `./`** (`'./x.js'`, never
 `'x.js'` — bare specifiers are for packages), **extensions are required** (no Node-style
 extension guessing), and Windows accepts `/` in specifiers even though paths are `\`.
-
-### Organizing one ES module for the Async Toolkit
-
-The chosen shape: one file, grouped in reading order — **errors first** (`TimeoutError`,
-the vocabulary everything else speaks), **utilities** (each with its JSDoc: signature,
-what it rejects with, what it guarantees), **self-checks** below a clear divider, and the
-**entry-point guard** last. Public surface = `export`. Anything helper-ish stays
-unexported. This keeps the deliverable ("one ES module") honest while still separating
-*definitions* from *verification*.
-
-### Using Node.js built-in `node:assert` for self-checks
-
-```js
-import assert from 'node:assert/strict';
-
-assert.equal(await sleep(30), undefined);          // throws AssertionError on mismatch
-await assert.rejects(mapLimit([1], 0, fn), RangeError);  // expected-rejection form
-```
-
-`assert` **throws** on failure — run the file with `node` and a failure is a non-zero
-exit code, so it works as a gate in scripts and CI. Use `node:assert/strict` (strict
-equality everywhere; the loose variant quietly allows `1 == '1'`). Assertions are your
-earliest "tests" — M09 will wrap this instinct in a real framework.
 
 > **Try it:** create `scratch.js` with `import { sleep } from './async-toolkit.js'`,
 > call it, and run it. Then remove the import and add `export const x = 1` — confirm you
@@ -420,7 +354,10 @@ earliest "tests" — M09 will wrap this instinct in a real framework.
 
 ---
 
-## 6. Understanding Asynchronous JavaScript
+## 3. Understanding Asynchronous JavaScript
+
+This section builds the mental model you'll narrate out loud at the checkpoint: what runs
+when, and why.
 
 ### Synchronous vs asynchronous execution
 
@@ -429,7 +366,7 @@ earliest "tests" — M09 will wrap this instinct in a real framework.
 continuation gets queued. JavaScript itself is single-threaded; the *waiting* happens
 elsewhere (timers, network, disk), and results come back through queues.
 
-### The call stack and event loop
+### Call stack, event loop, task queue, and microtask queue
 
 The **call stack** is where function calls live while they run — one entry pushed, runs,
 popped. It can only do one thing at a time: a synchronous infinite loop freezes
@@ -444,8 +381,6 @@ console.log('2');
 // prints 1, 2, 3 — the callback can't print '3' until the stack empties
 ```
 
-### Task queue vs microtask queue
-
 Two queues, strictly ordered:
 
 - **Microtasks:** promise `.then`/`catch`/`finally` callbacks, `await` continuations,
@@ -456,8 +391,6 @@ Two queues, strictly ordered:
 Priority in one line: *sync code > all queued microtasks > one task > all queued
 microtasks > …*
 
-### Understanding `setTimeout`, promises, and `await`
-
 - `setTimeout(fn, 0)` means "next trip around the loop", **not** "immediately" — every
   already-queued microtask runs first.
 - `Promise.resolve().then(fn)` runs in the **current** microtask drain — before any
@@ -465,39 +398,7 @@ microtasks > …*
 - `await expr` pauses the async function and schedules its continuation as a
   **microtask** — it does not block the stack; everything around it keeps running.
 
-### Predicting execution order from code snippets
-
-A reliable procedure (practice it until it's automatic):
-
-1. Draw one line for the synchronous pass — log everything that runs without waiting.
-2. Whenever you *see* a `.then(...)` or an `await` being registered, write down what queue
-   job it queues and in what order.
-3. Drain the microtask queue in FIFO order — note that handlers queue *new* microtasks
-   behind whatever is already waiting.
-4. Take **one** task from the task queue, back to step 2.
-
-### Explaining asynchronous output in your own words
-
-Aim for sentences like: *"The `setTimeout` printed last because its callback is a task,
-and tasks only run after the entire microtask queue — including the continuation queued
-by `await` — is empty."* If you can't say *why* an order happened, the prediction was a
-guess. Being able to narrate the queue states out loud is the module's core checkpoint —
-it's what separates "I know it prints 1-2-3" from "I understand the event loop".
-
-> **Try it:** predict, write it down, then run:
-> ```js
-> console.log('start');
-> setTimeout(() => console.log('timeout'), 0);
-> Promise.resolve().then(() => console.log('micro'));
-> console.log('end');
-> ```
-> Confirm `start, end, micro, timeout` — then explain the `end` vs `micro` gap.
-
----
-
-## 7. From Callbacks to Promises and Async/Await
-
-### Callback-based asynchronous code
+### Callbacks, callback hell, promises, and `async`/`await`
 
 A **callback** is "call this function when you're done": `fs.readFile(path, (err, data)
 => { ... })`. Node's original async style — error-first: first callback argument is `err`
@@ -510,8 +411,6 @@ fs.readFile('notes.txt', (err, data) => {
 });
 ```
 
-### Recognizing callback hell
-
 Not the indentation — the **semantic** problem: each nesting level must:
 
 - carry its own `if (err)` (miss one and the error vanishes),
@@ -519,9 +418,7 @@ Not the indentation — the **semantic** problem: each nesting level must:
 - and cannot be composed (no way to say "wait for these three, then…").
 
 When error handling is manual at every level, reliability is a discipline instead of a
-property — that's what the refactor in §12 makes visible.
-
-### Creating and consuming promises
+property — that's what the refactor in §7 makes visible.
 
 A promise is a value that *will arrive*: pending → fulfilled (value) or rejected
 (reason). Creating one wraps work whose completion triggers settle:
@@ -533,23 +430,6 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 Consuming = `.then(onFulfilled, onRejected)` (or `.catch`, `.finally`). Rules: a promise
 settles **once** (later resolve/reject calls are ignored), and handlers never run
 synchronously — always in a future microtask.
-
-### Promise chaining with `then`, `catch`, and `finally`
-
-```js
-fetchPost(1)
-  .then((post) => fetchComments(post.id))
-  .then((comments) => console.log(comments))
-  .catch((error) => console.error('chain failed:', error.message))
-  .finally(() => loading = false);   // runs on success AND failure — cleanup
-```
-
-Each `then` returns a **new** promise, which is why chains flow. Placement of `catch`
-matters: at the end it sees failures from *any* earlier link; in the middle it *handles*
-them and the rest of the chain continues as success. `finally` passes its value through
-unchanged — it's for cleanup, not transformation.
-
-### Writing `async` functions and using `await`
 
 `async` is sugar over exactly that machinery: the function always returns a promise, and
 `await` unwraps one (pausing only that function, scheduling continuation as a microtask).
@@ -566,7 +446,20 @@ Two rules that save hours: `await` only exists **inside `async` functions** (a t
 `await` works in modules, but not inside a plain callback), and `await` unwraps the value
 *or throws the rejection* — which is why `try/catch` works on it.
 
-### Error propagation and handling in async code
+### Promise chaining and asynchronous error handling
+
+```js
+fetchPost(1)
+  .then((post) => fetchComments(post.id))
+  .then((comments) => console.log(comments))
+  .catch((error) => console.error('chain failed:', error.message))
+  .finally(() => loading = false);   // runs on success AND failure — cleanup
+```
+
+Each `then` returns a **new** promise, which is why chains flow. Placement of `catch`
+matters: at the end it sees failures from *any* earlier link; in the middle it *handles*
+them and the rest of the chain continues as success. `finally` passes its value through
+unchanged — it's for cleanup, not transformation.
 
 Rejections propagate like thrown errors: an unhandled rejection in a chained promise
 travels to the next `.catch`/`try` in the chain — and if there is none, it reaches
@@ -590,9 +483,35 @@ longer in your `try`.
 > **Try it:** convert this pyramid to `async`/`await` and prove both handle the failure
 > identically: `readFile(→ parse(→ save(, with an error injected in `parse`.
 
+### Predicting the output order of `setTimeout`, promises, and `await`
+
+A reliable procedure (practice it until it's automatic):
+
+1. Draw one line for the synchronous pass — log everything that runs without waiting.
+2. Whenever you *see* a `.then(...)` or an `await` being registered, write down what queue
+   job it queues and in what order.
+3. Drain the microtask queue in FIFO order — note that handlers queue *new* microtasks
+   behind whatever is already waiting.
+4. Take **one** task from the task queue, back to step 2.
+
+Aim for sentences like: *"The `setTimeout` printed last because its callback is a task,
+and tasks only run after the entire microtask queue — including the continuation queued
+by `await` — is empty."* If you can't say *why* an order happened, the prediction was a
+guess. Being able to narrate the queue states out loud is the module's core checkpoint —
+it's what separates "I know it prints 1-2-3" from "I understand the event loop".
+
+> **Try it:** predict, write it down, then run:
+> ```js
+> console.log('start');
+> setTimeout(() => console.log('timeout'), 0);
+> Promise.resolve().then(() => console.log('micro'));
+> console.log('end');
+> ```
+> Confirm `start, end, micro, timeout` — then explain the `end` vs `micro` gap.
+
 ---
 
-## 8. Promise Coordination and Async Iteration
+## 4. Working with Promises and Async Operations
 
 ### Sequential vs parallel execution
 
@@ -604,7 +523,7 @@ const results = await Promise.all(ids.map(fetchPost));
 ```
 
 Sequential is simple and gentle on the far server but pays every latency one after
-another. Parallel is fast but bursts — and, as §11 measures, one slow response inflates
+another. Parallel is fast but bursts — and, as §6 measures, one slow response inflates
 the sequential total while parallel merely absorbs it. The middle ground is *bounded*
 parallelism (that's `mapLimit`).
 
@@ -644,7 +563,7 @@ Its gift: synchronous throws become rejections, so mixed sync/async functions ca
 handled in **one** place. (If your Node doesn't have it yet, `async () => fn()` is the
 stand-in: it also converts sync throws to rejections.)
 
-### Async iteration with `for await...of`
+### Async iteration with `for await...of` and `Array.fromAsync`
 
 ```js
 for await (const chunk of readableStream) { total += chunk.length; }
@@ -652,8 +571,6 @@ for await (const chunk of readableStream) { total += chunk.length; }
 
 Same loop you know, but each `next()` may return a promise — the loop awaits it. Works
 on async iterables: streams, cursors, and any object with `Symbol.asyncIterator`.
-
-### Collecting asynchronous results with `Array.fromAsync`
 
 ```js
 const posts = await Array.fromAsync(ids, (id) => fetchPost(id));
@@ -663,24 +580,18 @@ const posts = await Array.fromAsync(ids, (id) => fetchPost(id));
 One line for "map every item asynchronously, collect in order" — the readable middle
 ground between a `for` loop and `Promise.all(map(...))`.
 
-### Choosing the appropriate approach for a given problem
-
-Ask three questions: **Do I need every result?** (no → `race`/`any`/first-hit loop;
-yes → next question) **Can partial failure be tolerated or reported?** (`allSettled`
-vs `all`) **How much concurrency can the target handle?** (everything → `all`; a cap →
-`mapLimit`; one-at-a-time → `for…await`). When you're reaching for `forEach(async …)` or
-nested `await`s in loops, you've outgrown the simple tools — that's the signpost back to
-this section.
+**Choosing the right approach for a given problem.** Ask three questions: **Do I need
+every result?** (no → `race`/`any`/first-hit loop; yes → next question) **Can partial
+failure be tolerated or reported?** (`allSettled` vs `all`) **How much concurrency can
+the target handle?** (everything → `all`; a cap → `mapLimit`; one-at-a-time →
+`for…await`). When you're reaching for `forEach(async …)` or nested `await`s in loops,
+you've outgrown the simple tools — that's the signpost back to this section.
 
 > **Try it:** given `ids = [1..6]`, produce: (a) all results or throw on first failure,
 > (b) a report of successes and failures, (c) whichever responds first. Write the three
 > one-liners and say which combinator each used.
 
----
-
-## 9. Fetching Data, Timeouts, and Cancellation
-
-### Using `fetch` and parsing JSON responses
+### Fetching and parsing JSON with `fetch`
 
 ```js
 const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
@@ -690,8 +601,6 @@ const post = await response.json();      // await the body too — it's a promis
 Two awaits, two failure points. `fetch` is built in (Node 18+, no package needed) and
 returns a `Response` — headers/status are on the response, the body arrives via
 `.json()`/`.text()`, which you must `await`.
-
-### Handling HTTP and network errors
 
 `fetch` **rejects only on network-level failures** (DNS down, connection dropped). An
 HTTP `404` or `500` is a *successful* fetch of an error page — you must check:
@@ -704,7 +613,16 @@ if (!response.ok) {                      // ok = status 200–299
 
 Forgetting `response.ok` is the classic "my try/catch never fires on a 404" bug.
 
-### Understanding `AbortController` and `AbortSignal.timeout`
+`https://jsonplaceholder.typicode.com` needs no key, no auth, and returns predictable
+data (`/posts`, `/todos`, `/users`, `?_limit=…`). It's free by design for exactly this
+kind of exercise — so measured differences come from *your* code, not flaky credentials.
+Still check `response.ok`: a rate-limit `429` arrives as a normal response.
+
+> **Try it:** fetch `/posts/1` three ways — success; a bad URL (network error →
+> rejection); a `404` path with `response.ok` unchecked vs checked. Watch which ones your
+> `catch` actually sees.
+
+### Timeouts and cancellation with `AbortController` and `AbortSignal.timeout`
 
 ```js
 const controller = new AbortController();
@@ -719,8 +637,6 @@ signal that aborts itself. You can even combine them:
 `AbortSignal.any([controller.signal, AbortSignal.timeout(3000)])` — whichever fires
 first wins.
 
-### Distinguishing timeouts from cancellation
-
 - **Timeout** = "this is taking too long" — a policy you set, expressed as
   `AbortSignal.timeout(ms)` (or `withTimeout(promise, ms)` when the target takes no
   signal).
@@ -732,14 +648,7 @@ blindly `catch` and retry: a cancelled request retried forever is a bug. Check t
 reason (`error.name === 'TimeoutError'` → retryable; `'AbortError'` from your own
 controller → stop).
 
-### Working with JSONPlaceholder without API credentials
-
-`https://jsonplaceholder.typicode.com` needs no key, no auth, and returns predictable
-data (`/posts`, `/todos`, `/users`, `?_limit=…`). It's free by design for exactly this
-kind of exercise — so measured differences come from *your* code, not flaky credentials.
-Still check `response.ok`: a rate-limit `429` arrives as a normal response.
-
-### Awareness only: Temporal as a future-oriented alternative to `Date`
+### Temporal: awareness only
 
 `Date` is decades old: mutable-ish, easy to misuse across timezones, no duration type.
 **Temporal** is the incoming standard replacement (`Temporal.Instant`, `Temporal.ZonedDateTime`,
@@ -747,18 +656,17 @@ Still check `response.ok`: a rate-limit `429` arrives as a normal response.
 know it exists so `new Date()` arithmetic doesn't feel like the only possible world, and
 check whether your Node ships it before using it anywhere.
 
-> **Try it:** fetch `/posts/1` three ways — success; a bad URL (network error →
-> rejection); a `404` path with `response.ok` unchecked vs checked. Watch which ones your
-> `catch` actually sees.
-
 ---
 
-## 10. Building the Async Toolkit
+## 5. Building Your Async Toolkit
 
-### Designing the toolkit's public API
+Design first, then build each utility, then prove each one — every decision below has a
+self-check that pins it down.
 
-Decide **signatures and guarantees before implementations** — the guarantees are what
-self-checks verify:
+### Organizing the toolkit as an ES module
+
+**Designing the toolkit's public API.** Decide **signatures and guarantees before
+implementations** — the guarantees are what self-checks verify:
 
 | Function | Contract |
 | --- | --- |
@@ -772,6 +680,23 @@ failure vocabulary** (every invalid input rejects — never sometimes-throw,
 sometimes-reject), **never swallow errors** (rethrow the original, keep it as `cause`),
 and **declare timing claims precisely** (`>= ms`, "at most limit") so assertions can be
 literal.
+
+```js
+// async-toolkit.js
+export class TimeoutError extends Error { /* ... */ }
+export function sleep(ms) { /* ... */ }
+export function retry(fn, opts) { /* ... */ }
+
+// timing-comparison.js
+import { sleep } from './async-toolkit.js';   // paths include the ./ and the extension
+```
+
+The chosen shape: one file, grouped in reading order — **errors first** (`TimeoutError`,
+the vocabulary everything else speaks), **utilities** (each with its JSDoc: signature,
+what it rejects with, what it guarantees), **self-checks** below a clear divider, and the
+**entry-point guard** last. Public surface = `export`. Anything helper-ish stays
+unexported. This keeps the deliverable ("one ES module") honest while still separating
+*definitions* from *verification*.
 
 ### Implementing `sleep`
 
@@ -835,7 +760,7 @@ export function withTimeout(promise, ms) {
 ```
 
 Points to internalize: `TimeoutError extends Error` carries `cause` = the abort reason
-(§4's context rule, in code); `Promise.race` **subscribes to both branches**, so neither
+(§2's context rule, in code); `Promise.race` **subscribes to both branches**, so neither
 the timeout nor a late real rejection becomes an *unhandled* rejection; `{ once: true }`
 keeps listeners tidy; and `withTimeout` doesn't cancel the original promise — it stops
 *waiting*. True cancellation needs the promise's API to accept a signal (as `fetch` does).
@@ -873,7 +798,21 @@ unhandled-rejection warning. Fail fast, swallow nothing.
 sequential, empty list → `[]`, one throwing item rejects the call, `limit: 0` →
 `RangeError`.
 
-### Writing an independent `node:assert` self-check for each utility
+### Writing an individual `node:assert` self-check for each utility
+
+Start with the assertion library itself:
+
+```js
+import assert from 'node:assert/strict';
+
+assert.equal(await sleep(30), undefined);          // throws AssertionError on mismatch
+await assert.rejects(mapLimit([1], 0, fn), RangeError);  // expected-rejection form
+```
+
+`assert` **throws** on failure — run the file with `node` and a failure is a non-zero
+exit code, so it works as a gate in scripts and CI. Use `node:assert/strict` (strict
+equality everywhere; the loose variant quietly allows `1 == '1'`). Assertions are your
+earliest "tests" — M09 will wrap this instinct in a real framework.
 
 "Independent" means each utility's checks stand alone: no check depends on another
 utility's correctness *except* where it's the explicit subject (e.g., `retry`'s delay
@@ -890,7 +829,7 @@ if (isEntryPoint) await runSelfChecks();
 Otherwise importing `sleep` into the timing script would silently re-run all checks (or
 worse — if you got the guard backwards, your "passing" output would never run at all).
 
-### Understanding edge cases, errors, and implementation trade-offs
+### Handling edge cases and failures
 
 Run every utility past its edges before trusting it: `0`/empty/negative/one-item inputs,
 a `fn` that throws immediately vs halfway, `limit > items.length`, an already-rejected
@@ -907,7 +846,7 @@ why — that sentence is write-up material.
 
 ---
 
-## 11. Measuring Sequential vs Parallel Execution
+## 6. Measuring Sequential and Parallel Requests
 
 ### Fetching JSONPlaceholder data sequentially
 
@@ -947,7 +886,7 @@ Measurement hygiene — each of these changed a number during this module:
 - **Run more than once** and record every run: network latency varies run to run, so a
   single number is an anecdote. Expect variance, not a fixed ratio.
 
-### Explaining why parallel can be faster
+### Explaining the observed timing difference
 
 Sequential waits for the *round trip* each time: if each of 8 requests takes ~100ms of
 real network time, sequential pays 8 × 100ms — while parallel pays ~100ms total, because
@@ -956,7 +895,7 @@ cleanest proof is a single slow response: it inflates the sequential total by it
 latency (measured runs here: a 2236ms sequential outlier) while the parallel run merely
 *includes* that latency inside its overlap (same data, 39ms).
 
-### Understanding when parallelism is appropriate
+### Understanding when concurrency limits are useful
 
 Parallelism helps when waits dominate (network, disk) and the target tolerates concurrency
 — it does nothing for pure CPU work (one thread!), and it can *hurt* when it triggers rate
@@ -964,24 +903,23 @@ limits, exhausts connection pools, or makes debugging a thundering herd. Real-wo
 default: **bounded** parallelism — pick a limit from what the service documents (or start
 low), then measure.
 
-### Connecting concurrency limits to `mapLimit`
-
-`Promise.all(map(...))` is "limit = N, no negotiation". `mapLimit(items, 8, fn)` is the
-tunable version of the same measurement — and the reason it exists: fetch the same data
-*without* the burst. Worth measuring as a third run: `sequential`, `Promise.all`, and
-`mapLimit(posts, 3, fetchPost)` — expect the middle to win on time, the first to be
-safest for the server, and `mapLimit` to sit between them with a knob. If
-`mapLimit(..., limit)` ever returns *slower* than sequential, your limit is effectively 1
-— check the meter in the self-check before blaming the network.
+**Connecting concurrency limits to `mapLimit`.** `Promise.all(map(...))` is "limit = N,
+no negotiation". `mapLimit(items, 8, fn)` is the tunable version of the same measurement
+— and the reason it exists: fetch the same data *without* the burst. Worth measuring as a
+third run: `sequential`, `Promise.all`, and `mapLimit(posts, 3, fetchPost)` — expect the
+middle to win on time, the first to be safest for the server, and `mapLimit` to sit
+between them with a knob. If `mapLimit(..., limit)` ever returns *slower* than
+sequential, your limit is effectively 1 — check the meter in the self-check before
+blaming the network.
 
 > **Try it:** add a third measurement to the timing script using your `mapLimit` with
 > `limit: 3`, run everything three times, and paste all nine numbers into your write-up.
 
 ---
 
-## 12. Refactoring Callback-Based Code
+## 7. Refactoring Callback-Based Code
 
-### Understanding callback-style `node:fs` operations
+### Understanding callback-style `node:fs` code
 
 The pre-promise `node:fs` API is error-first callbacks: every operation takes
 `(args..., (err, result) => {})`. Chaining dependent operations means nesting, because
@@ -1003,7 +941,7 @@ fs.writeFile(input, data, (err) => {
 Four operations, four nesting levels, four `if (err)` blocks that must each be *individually*
 correct.
 
-### Refactoring to promise-based APIs
+### Refactoring to promises and `async`/`await`
 
 Node ships both worlds: `node:fs` (callbacks) and `node:fs/promises` (promises) — same
 operations, same names, different shape:
@@ -1017,7 +955,7 @@ The mechanical conversion: drop the callback, `await` the returned promise, dele
 identical** (same output, same failure outcomes): refactor is not a rewrite, so prove
 equivalence by running both and diffing the results.
 
-### Rewriting the flow with `async`/`await`
+**Rewriting the flow with `async`/`await`:**
 
 ```js
 async function main() {
@@ -1035,7 +973,7 @@ The pyramid becomes a **sequence**: steps in order, indentation flat, variables 
 is **one** `try/catch` around the whole flow (or around just the steps whose failure you
 handle differently).
 
-### Handling errors without swallowing them
+### Handling errors correctly
 
 The refactor's failure mode is subtler than the callback's: a missing `await` or a
 bare `main()` call turns every error into an unobserved rejection. Rules:
@@ -1049,7 +987,7 @@ bare `main()` call turns every error into an unobserved rejection. Rules:
 - If `main()` is called, make its rejection handled: `try { await main(); } catch` at the
   top level (top-level `await` inside `try` works in modules).
 
-### Comparing readability and control flow before and after
+### Comparing the original and refactored code
 
 Walk both files side by side and judge them on: **error handling** (N hand-written
 branches vs one `catch`), **scope** (nested closures vs top-to-bottom locals), **failure
@@ -1066,7 +1004,10 @@ the language*, so your code can spend its indentation on structure instead.
 
 ---
 
-## 13. Common Async Pitfalls and Troubleshooting
+## 8. Avoiding Common Async Mistakes
+
+Read this section *after* your first build attempt — every item below is a bug you're now
+positioned to recognize in your own code.
 
 ### Forgetting `await`
 
@@ -1104,7 +1045,7 @@ work flies loose. Fixes, in order of preference: `for…of` + `await` (clearest)
 `Promise.all(ids.map(async (id) => ...))` (parallel), `mapLimit` (bounded). Rule:
 **`forEach` never appears in code that contains `await` inside its callback.**
 
-### Unhandled promise rejections
+### Unhandled promise rejections and swallowed errors
 
 A rejection with no handler anywhere: starts as a Node warning, and in modern Node an
 `unhandledRejection` **crashes the process** — often minutes after the real bug, pointing
@@ -1113,8 +1054,6 @@ without `await`/`.catch`, or a rejected promise nobody raced/collected. Find the
 with `node --unhandled-rejections=strict` (turns them into immediate crashes with stacks)
 while testing; add `process.on('unhandledRejection', log)` during development for a
 friendlier net.
-
-### Swallowed errors and incorrect error handling
 
 ```js
 try { await risky(); } catch { }                    // swallowed whole
@@ -1126,10 +1065,10 @@ An empty `catch` converts a failure into "nothing happened" — downstream code 
 *far* from the cause with a misleading message. If you *choose* a fallback, make it a
 value that's correct for every caller (and say so in a comment); if you don't know what
 to do, rethrow — with `{ cause }` if you add context. Also: catching only
-`error.message` (string matching) instead of custom error types (§4) is *incorrect error
+`error.message` (string matching) instead of custom error types (§2) is *incorrect error
 handling* dressed as convenience.
 
-### Race conditions and unexpected execution order
+### Unexpected execution order and race conditions
 
 Classic shapes: starting two async steps that write the same state (last-to-finish wins,
 whichever that is); `Promise.race` where you actually needed `Promise.all`; aborting a
@@ -1141,7 +1080,7 @@ thing you depend on, make writes single-flight (one `await`ed code path per reso
 and treat "it works locally, flaky in CI" as a queue-order question until proven
 otherwise.
 
-### Diagnosing failed assertions and timing surprises
+### Troubleshooting failed self-checks
 
 - **Read the assertion message first** — `expected >= 100ms, took 12ms` tells you the
   *delay never ran*, not that your stopwatch is wrong (that's a `retry` bug, not a timing
@@ -1156,54 +1095,61 @@ otherwise.
 - **Works with `node file.js`, fails on import** — your entry-point guard is inverted;
   importing must not *run* checks, and running directly must.
 
-> **Try it (the module's diagnostic rite of passage):** take any snippet from §6, predict
+> **Try it (the module's diagnostic rite of passage):** take any snippet from §3, predict
 > its order on paper, run it, and if you're wrong — find the exact line where your mental
 > queue model diverged from the real one. That line is your personal pitfall list.
 
 ---
 
-## 14. Hands-On Practice
+## 9. Hands-On Practice
 
-Work these in order — each one earns the next. Use the workflow from §1: research before
-(or alongside) the build, verify with something executable, document while it's fresh.
+Work these in order — each one earns the next. Sections 2–4 were your research: if those
+`tasks.md` boxes aren't ticked yet, work them with a scratch file first. Use the workflow
+from §1 — research before (or alongside) the build, verify with something executable,
+document while it's fresh.
 
-1. **Research the modern JavaScript language essentials.** Work through §2–§5 with a
-   scratch file: closures, destructuring defaults, `??` vs `||`, `toSorted`,
-   `groupBy`, `Set` methods, custom error classes with `cause`. Tick research boxes only
-   when you've actually run the example, not when you've read it.
-2. **Build the four Async toolkit utilities with individual self-checks.**
+1. **Build `sleep`, `retry`, `withTimeout`, and `mapLimit`, each with its own passing
+   `node:assert` self-check.**
    `sleep` → `retry` → `withTimeout` → `mapLimit`, each with its own `node:assert`
-   checks (shapes in §10). Run `node async-toolkit.js` — every check must pass, exit
+   checks (shapes in §5). Run `node async-toolkit.js` — every check must pass, exit
    code 0, no unhandled-rejection warnings.
-3. **Fetch JSONPlaceholder data sequentially and in parallel; record actual timings.**
-   Same ids both ways, warm-up fetch first, `Date.now()` around each (§11). Record
+2. **Fetch JSONPlaceholder data sequentially and in parallel, then record and compare the
+   actual timings.**
+   Same ids both ways, warm-up fetch first, `Date.now()` around each (§6). Record
    *every* run's numbers — they go in your write-up's checkpoint evidence, and parallel
    must win.
-4. **Refactor callback-style `node:fs` code to promises and `async`/`await`.** Write the
-   callback version first (or take the pyramid in §12), convert to `node:fs/promises`,
-   prove identical output, and one deliberate missing-`await` bug to feel the failure.
-5. **Predict and explain the output order of a mixed `setTimeout`/promise/`await`
-   snippet.** Write the prediction *before* running (§6 procedure), run it, then explain
-   each position — especially the `await`-continuation vs chained-`.then` pair.
-6. **Review the implementation and all Definition of Done requirements.** Re-read your
-   toolkit against every DoD checkbox in `brief.md`. Ask: does any check pass for the
-   *wrong reason*? Do all invalid inputs fail loudly?
-7. **Capture verification evidence and complete the M02 write-up.** Save self-check
-   output, all timing runs, and the prediction/actual ordering transcript as evidence
-   (local, gitignored — never committed), and fill `write-up.md` section by section:
-   what you built, key decisions, one teach-it guide, concepts in your own words,
-   what tripped you up, checkpoint evidence, what you'd do differently.
-8. **Follow the M01 branch → PR → merge workflow for the lab checkpoint.** Conventional
-   Commits on a feature branch, push, open the PR (describe what you built and what you
-   measured), merge. The PR history *is* your public checkpoint trail.
+3. **Refactor callback-style `node:fs` code to promises and `async`/`await`.**
+   Write the callback version first (or take the pyramid in §7), convert to
+   `node:fs/promises`, prove identical output, and one deliberate missing-`await` bug to
+   feel the failure.
+4. **Predict and explain the output order of a snippet mixing `setTimeout`, promises, and
+   `await`.**
+   Write the prediction *before* running (§3 procedure), run it, then explain each
+   position — especially the `await`-continuation vs chained-`.then` pair.
+5. **Review the toolkit, verify all self-checks, and confirm the required outcomes.**
+   Re-read your toolkit against every Definition of Done checkbox in `brief.md`. Ask:
+   does any check pass for the *wrong reason*? Do all invalid inputs fail loudly? Capture
+   verification evidence as you go — self-check output, every timing run, the
+   prediction/actual transcript (keep evidence files local and gitignored — never
+   committed) — and fill `write-up.md` section by section: what you built, key decisions,
+   one teach-it guide, concepts in your own words, what tripped you up, checkpoint
+   evidence, what you'd do differently.
+6. **Continue using your existing `node-js-training-ground` repository. Create an M02
+   feature branch, commit your work, open a pull request, and merge it.**
+   Conventional Commits on the feature branch, push, then open the PR (describe what you
+   built and what you measured), and merge. The PR history *is* your public checkpoint
+   trail.
 
 ---
 
-## 15. Knowledge Check and Self-Assessment
+## 10. Wrap-Up and Self-Assessment
 
-Answer without looking back; then check the answer key below. For each area, the honest
-test is: *could you explain it to the next trainee with a fresh example, not the one in
-the text?*
+Two passes: prove your understanding with the knowledge check (answer without looking
+back, then check the key), then confirm your deliverable with the self-assessment that
+follows. For each area, the honest test is: *could you explain it to the next trainee
+with a fresh example, not the one in the text?*
+
+### Knowledge check
 
 **Modern JavaScript syntax and data manipulation**
 
@@ -1259,9 +1205,9 @@ the text?*
 **Can each toolkit utility be explained and verified independently?** For each of
 `sleep`, `retry`, `withTimeout`, `mapLimit`: state its contract in one sentence, its
 failure mode for bad input, and name two self-checks that pin it down. If you can't do
-all three for all four, revisit §10 before calling the module done.
+all three for all four, revisit §5 before calling the module done.
 
-### Answer key
+#### Answer key
 
 1. `0` is falsy, so `||` substitutes `3` — use `??`, which only falls through on
    `null`/`undefined`.
@@ -1312,24 +1258,52 @@ all three for all four, revisit §10 before calling the module done.
     expected a rejection (or vice versa). Fix the production inconsistency, not the
     message.
 
----
+### Explain the event loop and asynchronous output ordering
 
-## 16. Wrap-Up and Readiness for M03
+**Queues, not magic.** Sync code → drain microtasks → one task. If you can narrate that
+loop, output ordering and most flakiness stop being mysterious. Re-run the §3 prediction
+snippet and narrate each queue state out loud until the order is obvious, not memorized —
+that narration *is* the checkpoint.
 
-### Key lessons from building reliable asynchronous utilities
+### Explain the design choices behind your toolkit
 
-- **Make failure loud and uniform.** Every bad input rejects the same way; every real
-  error keeps its original (`cause`); nothing is caught-and-ignored. Your toolkit's
-  value is its *predictable failure*, not its happy path.
-- **Queues, not magic.** Sync code → drain microtasks → one task. If you can narrate
-  that loop, output ordering and most flakiness stop being mysterious.
-- **Measure instead of assuming.** Parallel *should* win — you still ran it three times,
-  warmed up first, and recorded all the numbers. The 2236ms run only became a lesson
-  because it was written down.
-- **Pick concurrency deliberately.** `Promise.all` (all at once), `mapLimit` (a knob),
-  sequential (a choice) — three answers, three different costs to the server and to you.
+**Make failure loud and uniform.** Every bad input rejects the same way; every real
+error keeps its original (`cause`); nothing is caught-and-ignored. Your toolkit's value
+is its *predictable failure*, not its happy path. **Pick concurrency deliberately.**
+`Promise.all` (all at once), `mapLimit` (a knob), sequential (a choice) — three answers,
+three different costs to the server and to you. Be ready to defend the trade-offs you
+accepted: fixed delay vs exponential backoff in `retry`, fail-fast vs fail-soft in
+`mapLimit`, stop-waiting vs true cancellation in `withTimeout`.
 
-### Common mistakes to avoid in future projects
+### Confirm all self-checks pass
+
+**Review of the completed Async toolkit and captured evidence.** Re-walk the deliverable:
+four utilities in one ES module, **15/15 self-checks passing** (exit 0, no warnings);
+three timing runs where parallel won every time (2236→39ms, 132→37ms, 100→36ms);
+both fs-refactor versions producing identical output; the output-order prediction
+matching the actual run position for position; evidence files kept local and gitignored;
+and the checkpoint PR merged in the training-ground repo. Each DoD checkbox should point
+at a *thing you can show*, not a memory.
+
+**Final Definition of Done checklist**
+
+- [ ] All `node:assert` self-checks pass (`node async-toolkit.js` → exit 0).
+- [ ] You can predict and explain, unaided, the output order of a snippet mixing
+      `setTimeout`, promises, and `await`.
+- [ ] The timing comparison shows parallel beating sequential, and you can explain why.
+- [ ] `tasks.md` fully ticked; `write-up.md` complete with real evidence; branch → PR →
+      merged for the lab checkpoint.
+
+### Explain the results of your sequential vs parallel timing comparison
+
+**Measure instead of assuming.** Parallel *should* win — you still ran it three times,
+warmed up first, and recorded all the numbers. The 2236ms run only became a lesson
+because it was written down: sequential *sums* latencies (one slow round trip inflates
+the whole loop), parallel *overlaps* them (the same outlier lands inside the overlap).
+Walk your own table and say both halves out loud — what the numbers are and why they
+have to be that way.
+
+### Identify and correct common asynchronous programming mistakes
 
 - `forEach(async …)`, floating promises, and `await`-less promises used as values.
 - Empty `catch` blocks and swallowed rejections — errors that used to be bugs become
@@ -1340,25 +1314,7 @@ all three for all four, revisit §10 before calling the module done.
 - Trusting the first timing number (or the config file that says which Node is "active")
   without asking the tool.
 
-### Review of the completed Async toolkit and captured evidence
-
-Re-walk the deliverable: four utilities in one ES module, **15/15 self-checks passing**
-(exit 0, no warnings); three timing runs where parallel won every time (2236→39ms,
-132→37ms, 100→36ms); both fs-refactor versions producing identical output; the
-output-order prediction matching the actual run position for position; evidence files
-kept local and gitignored; and the checkpoint PR merged in the training-ground repo.
-Each DoD checkbox should point at a *thing you can show*, not a memory.
-
-### Final Definition of Done checklist
-
-- [ ] All `node:assert` self-checks pass (`node async-toolkit.js` → exit 0).
-- [ ] You can predict and explain, unaided, the output order of a snippet mixing
-      `setTimeout`, promises, and `await`.
-- [ ] The timing comparison shows parallel beating sequential, and you can explain why.
-- [ ] `tasks.md` fully ticked; `write-up.md` complete with real evidence; branch → PR →
-      merged for the lab checkpoint.
-
-### What to carry forward into M03
+### Check your readiness to apply modern JavaScript and async patterns in the next module
 
 M03 moves from *language-level* async to the *Node runtime*: core modules beyond
 `node:fs`, npm and `package.json`, and a bare `node:http` server — all of which you'll
