@@ -1,0 +1,43 @@
+# Patterns — verifying large document restructures (2026-10-19)
+
+> Discovered while re-outlining `modules/m02-.../training-material.md` (16 sections → 10)
+> in the rnd repo. Uncommitted draft; rnd git stays with the owner.
+
+## Backup first, then prove coverage with a line-level `comm` diff
+
+- Before overwriting a big doc, copy it to temp. After the rewrite, extract "content"
+  lines (≥30 chars; skip headings, fences, `---`), `sort -u` both sets, then
+  `LC_ALL=C comm -23 orig_set new_set`. Every "missing" line must be classified as an
+  *intentional* change (ref rewrites, rewraps, merged steps) or an accidental drop.
+- Per-line `grep -F` in a loop is correct but far too slow — it timed out at 120s on a
+  1370-line file on this box. The set-difference is one pass and finishes in seconds.
+- This converts "I think I moved everything" into a reviewable list. In the M02 run it
+  surfaced a reference the renumbering itself had broken: a signpost I rewrote as
+  "back to §8" during the move, where the original (and correct) wording was
+  "back to this section" — under the new numbering §8 means a different topic entirely.
+  The flagged line made the mis-point obvious; it plus two whitespace/wording drifts
+  were the only real defects — exactly the class a re-outline produces silently.
+
+## Renumbering breaks inline section cross-refs — audit in the same pass
+
+- `grep -n '§[0-9]*'` (or `§N`, "section N") **after** writing, and verify each hit
+  resolves to the intended target under the new numbering. A re-outline can move a
+  reference's *meaning* without changing its text (§8 used to mean "promise
+  coordination", now it means "async mistakes") — the digit may even be absent
+  ("this section"). Check semantics, not just digits.
+
+## Chunked full rewrites with an APPEND-MARKER
+
+- A full-file rewrite that exceeds one comfortable output: `write` chunk 1 ending with a
+  unique marker (e.g. `<!-- APPEND-MARKER -->`), then `edit` marker → chunk N + marker,
+  final edit removes it. Finish with `grep -c APPEND-MARKER` = 0 to prove no scaffolding
+  survived.
+- When the old section order is preserved by the new outline (contiguous group merges),
+  map old→new sections first — you almost never need to move content across the file,
+  only retitle/merge headings. The move list stays small and reviewable.
+
+## Verify structure with cheap invariants, not a re-read
+
+- Heading lint: one `##` per section, numbers 1…N in order, subsection labels match the
+  approved outline exactly; fence count even; expected separator count (`---` = N−1);
+  numbered-step ranges per section. Seconds to run, catches most structural regressions.
