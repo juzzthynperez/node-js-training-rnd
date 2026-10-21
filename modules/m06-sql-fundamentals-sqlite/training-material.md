@@ -14,7 +14,7 @@ Mermaid ERD in your repository's README.
 
 **How to read this material:**
 
-- **▶ Concept** sections explain an idea *before* you touch the keyboard. Read top to bottom.
+- **Prose sections** build each idea *before* you touch the keyboard. Read top to bottom.
 - **` ```sql ` blocks** are runnable fragments. Copy them into your session to try them —
   then change them, break them, and read the error.
 - **Build it** boxes are the hands-on requirements. Everything inside one becomes part of
@@ -34,12 +34,9 @@ Needed only in §9 — **Node.js ≥ 22.5** (any recent LTS works; check with `n
 
 ## 1. Introduction to Relational Databases and SQLite
 
-- Understanding relational databases and how they organize data
-- Understanding tables, rows, columns, and relationships
-- Understanding SQLite's single-file database approach
-- Understanding how M06 builds on the in-memory Task API from M05
-- Understanding why the Task API needs a relational schema before introducing Prisma in M07
-- Reviewing the M06 deliverables and learning objectives
+Before any SQL, the mental model. This section builds it: what a relational database is and why
+tables that reference each other beat duplicated data, why SQLite is the one database this program
+touches hands-on, and how this module extends the in-memory Task API you built in M05.
 
 A **relational database** stores data in **tables** — think spreadsheets with strict rules:
 each table has fixed **columns** (fields, each with a type) and any number of **rows**
@@ -93,13 +90,10 @@ is fine) and keep it beside you — §10 reviews this list line by line.
 
 ## 2. Tables, Keys, Relationships, and Normalization
 
-- Understanding primary keys and foreign keys
-- Understanding one-to-one (1:1), one-to-many (1:N), and many-to-many (M:N) relationships
-- Understanding why many-to-many relationships require a junction table
-- Introducing normalization and its purpose
-- Understanding the basics of First, Second, and Third Normal Forms (1NF, 2NF, and 3NF)
-- Identifying the relationships between users, tasks, and tags
-- Understanding how the `task_tags` table connects tasks and tags
+Four ideas drive every design decision in this module: keys, relationship degrees, junction
+tables, and normalization. This section introduces each one — by the end you'll be able to say
+why a task can carry many tags with no single column doing the job, and what the three normal
+forms buy you.
 
 **Primary keys and foreign keys.** Every table needs a **primary key (PK)** — the column that
 uniquely identifies a row, never NULL, never repeated. In SQLite, `INTEGER PRIMARY KEY` is
@@ -163,12 +157,10 @@ carries the key. You will refine this in §4 — paper first, SQL much later.
 
 ## 3. Getting Started with SQLite
 
-- Installing and choosing between the SQLite CLI and DB Browser for SQLite
-- Creating and opening a SQLite database file
-- Understanding SQLite's dynamic typing and type affinity
-- Enabling foreign-key enforcement with `PRAGMA foreign_keys = ON`
-- Inspecting tables, schema definitions, and stored data
-- Executing SQL statements and reviewing their results
+Time to install a tool and open a database. This section gets you to a working `sqlite3`
+session, shows you how to inspect what's inside a database file, and states the one SQLite quirk
+that silently breaks more work in this module than any other: foreign-key enforcement is off in
+every new session.
 
 **Install your tool.** Two free options — either is fine, pick one:
 
@@ -244,14 +236,10 @@ observe the PRAGMA is back to 0. That observation *is* the lesson.
 
 ## 4. Designing the Task API Database Schema
 
-- Translating the Task API domain into relational tables
-- Designing the `users` table
-- Designing the `tasks` table and its relationship to users
-- Designing the `tags` table
-- Designing the `task_tags` junction table
-- Choosing appropriate columns, data types, and constraints
-- Understanding how primary keys and foreign keys maintain relationships
-- Planning the schema before writing the SQL
+Now the design — the section that turns the Task API domain into tables. You'll translate what
+M05's tasks were into `users`, `tasks`, `tags`, and a junction table; choose the type and
+constraints for every column; and decide what each foreign key should do when its parent row is
+deleted — all on paper, before any `CREATE TABLE`.
 
 **Translating the domain.** The M05 Task API had tasks with `title`, `description`, `status`.
 M06's schema grows the domain: tasks are *owned* by users and *tagged* by tags. Translate
@@ -325,15 +313,10 @@ document your SQL must match — and your ERD in §10 must match both.
 
 ## 5. Creating Tables and Enforcing Constraints
 
-- Understanding Data Definition Language (DDL)
-- Creating tables with `CREATE TABLE`
-- Understanding and using `PRIMARY KEY`, `NOT NULL`, and `UNIQUE`
-- Applying `CHECK` and `DEFAULT` constraints where appropriate
-- Defining foreign keys and choosing suitable `ON DELETE` behavior
-- Understanding how constraints protect data integrity
-- Introducing schema changes with `ALTER TABLE`
-- Understanding when `DROP TABLE` removes a table and its data
-- Creating the tables in the correct order to respect foreign-key dependencies
+The design becomes SQL. This section covers DDL — the statements that shape the schema — with
+the full constraint vocabulary: keys, `NOT NULL`, `UNIQUE`, `CHECK`, `DEFAULT`, and foreign keys
+carrying a chosen `ON DELETE` behavior. You'll create the four tables in dependency order and
+then prove the constraints really do reject bad data.
 
 **DDL** (Data Definition Language) is the SQL family that shapes the schema itself:
 `CREATE`, `ALTER`, `DROP`. It's separate in every SQL culture from **DML** (Data
@@ -434,14 +417,10 @@ deliberately invalid row per constraint type and confirm each is rejected. Save 
 
 ## 6. Seeding Data and Performing CRUD Operations
 
-- Inserting records with `INSERT`
-- Understanding how to insert related records in the correct order
-- Seeding the database with users, tasks, and tags
-- Updating existing records with `UPDATE`
-- Deleting records with `DELETE`
-- Retrieving records with `SELECT`
-- Understanding how constraints affect invalid inserts and updates
-- Verifying that the seeded data respects the schema's relationships
+Schema meets data. This section is CRUD: how to fill your tables in an order that satisfies the
+foreign keys, how to shape seed data so the exercises later have interesting answers, how to
+change and remove rows without breaking anything — and how to verify the constraints protected
+you while you did it.
 
 **`INSERT`** adds rows. Column list first, then matching values — one row or many:
 
@@ -543,22 +522,10 @@ and capture the empty result. Keep your planned counts written down — §10 rev
 
 ## 7. Querying Relational Data
 
-- Filtering records with `WHERE`
-- Combining conditions with `AND`, `OR`, and other comparison operators
-- Sorting results with `ORDER BY`
-- Limiting and paginating results with `LIMIT` and `OFFSET`
-- Understanding the concept of keyset pagination
-- Joining related records with `INNER JOIN`
-- Including unmatched records with `LEFT JOIN`
-- Using aggregate functions such as `COUNT`, `SUM`, `AVG`, `MIN`, and `MAX`
-- Grouping results with `GROUP BY` and filtering groups with `HAVING`
-- Using subqueries to answer questions involving related data
-- Writing queries across users, tasks, tags, and the `task_tags` junction table
-- Creating and running at least 20 of your own graded SQL query exercises
-- Checking query results against the expected behavior of the data
-
-This section is technique *and* the bulk of your deliverable. Each topic gets a worked
-fragment — **your job is to write your own variations**, graded, until you have 20+.
+This section is technique *and* the bulk of your deliverable: querying. Each technique below
+gets a worked fragment — filtering, sorting, pagination, the two joins, aggregates with grouping,
+subqueries — and **your job is to write your own variations**, graded, until you have 20+, each
+with its expected result written down before you run it.
 
 **Filtering with `WHERE`, and combining conditions.**
 
@@ -702,16 +669,10 @@ numbered order with `GRADED:` comments. Every expectation must match on a fresh 
 
 ## 8. Indexes, Query Plans, and Transactions
 
-- Understanding what an index is and why it can improve query performance
-- Identifying queries that may benefit from indexes
-- Creating and removing indexes with `CREATE INDEX` and `DROP INDEX`
-- Inspecting query plans with `EXPLAIN QUERY PLAN`
-- Understanding the basic ACID properties of transactions
-- Starting transactions with `BEGIN`
-- Saving changes with `COMMIT`
-- Reverting uncommitted changes with `ROLLBACK`
-- Understanding when multiple database operations should succeed or fail together
-- Trying at least one query or set of database operations inside an explicit transaction
+Two more tools for the belt: indexes, which let the engine walk a sorted tree instead of
+reading every row, and transactions, which make several writes succeed or fail as one. You'll
+read SQLite's own query plan before and after creating an index, and drive
+`BEGIN`/`COMMIT`/`ROLLBACK` by hand.
 
 **What an index is.** A B-tree — a sorted structure over chosen columns — that lets the
 engine *navigate* to matching rows instead of reading the whole table. Without one:
@@ -788,15 +749,10 @@ both transcripts as evidence.
 
 ## 9. SQL Injection and Parameterized Queries
 
-- Understanding how SQL injection happens
-- Recognizing the risk of constructing SQL statements through string concatenation
-- Writing a deliberately vulnerable query using concatenated input
-- Demonstrating a successful SQL injection against the vulnerable query
-- Understanding why the injected input changes the meaning of the SQL statement
-- Rewriting the same query to use parameterized input
-- Demonstrating that the same injection attempt no longer works as intended
-- Comparing the vulnerable and parameterized versions
-- Capturing evidence of both the successful injection and the fixed behavior
+The most dangerous bug in database programming, and its one correct fix. This section builds a
+query that is vulnerable on purpose, breaks it with a real injection payload, then repairs the
+same query with parameter binding and shows the same attack failing. The demo runs in Node.js,
+where parameter binding is a database driver's API — the layer where the fix actually lives.
 
 **How injection happens.** The application builds a SQL string by pasting user input into
 its text. If the input is part of the *statement*, the SQL parser reads it as SQL — the user
@@ -890,18 +846,9 @@ Then vary one thing and re-run to prove you understand — e.g. change the paylo
 
 ## 10. Final Integration, Documentation, and Self-Assessment
 
-- Reviewing the complete database schema and seeded data
-- Verifying that all four required tables and their relationships are correct
-- Reviewing the 20+ SQL exercises and confirming their required coverage
-- Confirming that at least one explicit transaction has been attempted
-- Verifying the SQL injection demonstration and parameterized fix
-- Documenting the database relationships with a Mermaid ERD in the GitHub repository's README
-- Checking that the Mermaid ERD matches the actual schema
-- Reviewing the module's completion requirements and preparing the pull request
-- Explaining the difference between primary keys and foreign keys
-- Explaining the purpose of indexes and the difference between 1:N and M:N relationships
-- Reflecting on challenges, query-writing lessons, and schema design decisions
-- Understanding how M06's SQL knowledge prepares you to use Prisma in M07
+Everything comes together: a from-zero rebuild that proves the whole module works, the Mermaid
+ERD for your README, the self-test that tells you whether the concepts stuck, and the handoff —
+what in your hand-written SQL carries into M07's Prisma schema, and what silently doesn't.
 
 **Integration review — rebuild and replay from zero.** The strongest proof everything works:
 `rm task.db`, re-run schema, re-run seed, re-run every exercise — all expectations still

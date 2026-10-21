@@ -41,3 +41,25 @@
 - Heading lint: one `##` per section, numbers 1…N in order, subsection labels match the
   approved outline exactly; fence count even; expected separator count (`---` = N−1);
   numbered-step ranges per section. Seconds to run, catches most structural regressions.
+
+## Anchors in edit spans: repeat them verbatim or keep them out (2026-10-21, M06)
+
+- A body rewrite whose `oldString` starts at a heading must repeat that heading in
+  `newString` — one M06 edit dropped `## 7. Querying Relational Data` exactly this way
+  (oldString spanned heading + bullets + opener; newString was the new opener only). Caught
+  in-pass, but a heading loss survives every content diff — it is the one line the coverage
+  classifier never flags as a drop.
+- Cheap defense: keep structural anchors (headings, fence delimiters) OUT of edit spans
+  where possible — anchor on unique body text instead; when the anchor must be in the span,
+  diff the heading set (`grep '^## '`) immediately after the edit batch, not at end of pass.
+
+## glob cannot see gitignored state dirs — detect tool backends with the shell (2026-10-21)
+
+- `/evaluate`'s "check which backend exists" step (glob `graphify-out/graph.json`) silently
+  reports NO GRAPH when one exists: glob skips gitignored paths, and `graphify-out/` is
+  gitignored. The graph was present the whole session; `ls graphify-out/` found it instantly.
+  Any existence probe for tool-generated state must use the shell, not glob.
+- Related: `graphify path` remains unusable on this graph (ambiguous basename match), and
+  `graphify query` resolves the bare name `training-material.md` to M01's node — six modules
+  share that filename, so basename node identity shadows other modules' files. Query with
+  module-qualified strings and read the `src=` attribute to confirm which file a node is.
