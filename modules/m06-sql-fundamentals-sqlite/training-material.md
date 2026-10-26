@@ -9,7 +9,7 @@ small command-line program.
 
 **What you will produce:** a `users` / `tasks` / `tags` / `task_tags` schema you designed,
 created, and seeded with SQL; **20+ graded query exercises you wrote yourself**, including
-explicit transactions; a working SQL-injection demo with evidence of both outcomes; and a
+explicit transactions; a working SQL-injection demo with evidence of all three outcomes; and a
 Mermaid ERD in your repository's README.
 
 **How to read this material:**
@@ -69,9 +69,11 @@ an ORM user who can't read what it hid cannot debug what it does.
 2. **20+ graded query exercises you wrote yourself**, covering filtering, sorting and
    pagination, `INNER`/`LEFT` joins, aggregates with `GROUP BY`/`HAVING`, and at least one
    subquery — each with a stated expected result you check yourself against.
-3. At least one query inside an explicit transaction (`BEGIN`/`COMMIT`/`ROLLBACK`).
-4. A SQL-injection demo: the attack **succeeds** against a vulnerable query, and the
-   parameterized fix **blocks** it — shown with captured evidence, not asserted.
+3. A **transaction exercise**: at least one query run inside an explicit transaction
+   (`BEGIN`/`COMMIT`/`ROLLBACK`).
+4. A SQL-injection demo: the attack **succeeds** against a vulnerable query, the
+   parameterized fix **blocks** it, and a legitimate login still succeeds through the
+   fixed query — three captured outcomes, not asserted.
 5. A Mermaid ERD in your repository's README that matches the schema you actually built.
 
 Objectives: you will be able to explain primary vs. foreign keys, index purpose, and how to
@@ -86,7 +88,7 @@ is fine) and keep it beside you — §10 reviews this list line by line.
 > documentation repo's matching folder. Keep the two straight: code and evidence in one,
 > prose in the other.
 
-**Checkpoint:** Explain why the Task API is moving from an in-memory store to a relational database.
+**Checkpoint:** Explain why the Task API needs a relational database and what SQLite provides.
 
 ## 2. Tables, Keys, Relationships, and Normalization
 
@@ -153,7 +155,7 @@ attributes (assignment time, tag weight — we don't need any yet).
 PK and FK columns, and write one sentence per relationship naming its degree and which side
 carries the key. You will refine this in §4 — paper first, SQL much later.
 
-**Checkpoint:** Explain the relationships between the four required tables and why `task_tags` is needed.
+**Checkpoint:** Explain the relationships among the four tables and why `task_tags` is necessary.
 
 ## 3. Getting Started with SQLite
 
@@ -232,7 +234,7 @@ and read it back with `PRAGMA foreign_keys;`; run `.tables` (empty is expected);
 `SELECT` against a not-yet-existing table and read its error; then `.quit` and reopen —
 observe the PRAGMA is back to 0. That observation *is* the lesson.
 
-**Checkpoint:** Create a database file, execute a SQL statement, and verify the result using the chosen SQLite tool.
+**Checkpoint:** Create a database, execute a SQL statement, and verify the result using your chosen SQLite tool.
 
 ## 4. Designing the Task API Database Schema
 
@@ -306,10 +308,12 @@ cost on paper.
 
 **Build it (§4):** complete your schema design — all four tables, every column with its type,
 every constraint, and every FK action chosen *and named* (CASCADE or RESTRICT, with your
-reason for each). Write the `task_tags` composite PK explicitly. This design is the source
+reason for each). Write the `task_tags` composite PK explicitly. Then re-read your sketch
+against §2's two duplication questions — every fact stored once, no column holding more than
+one value — and fix whatever fails them. This design is the source
 document your SQL must match — and your ERD in §10 must match both.
 
-**Checkpoint:** Complete a schema design for all four tables and explain the relationships and key decisions.
+**Checkpoint:** Complete a design for all four tables and explain the key relationships and schema decisions.
 
 ## 5. Creating Tables and Enforcing Constraints
 
@@ -413,7 +417,7 @@ deliberately invalid row per constraint type and confirm each is rejected. Save 
 > and the data is wrong; (3) you're testing the RESTRICT tag FK with a tag that's still in
 > use — that error means it's *working*.
 
-**Checkpoint:** Create all four tables and verify that the intended constraints and foreign-key relationships are present.
+**Checkpoint:** Create all four tables and demonstrate that the intended constraints reject invalid data.
 
 ## 6. Seeding Data and Performing CRUD Operations
 
@@ -518,7 +522,7 @@ and capture the empty result. Keep your planned counts written down — §10 rev
 > Browser) holding the file. Finish or `.quit` the first session; SQLite allows many readers
 > but one writer.
 
-**Checkpoint:** Seed the database and demonstrate successful CRUD operations while confirming that constraints prevent invalid data.
+**Checkpoint:** Seed the database, demonstrate CRUD operations, and verify that the data and relationships remain consistent.
 
 ## 7. Querying Relational Data
 
@@ -533,9 +537,11 @@ with its expected result written down before you run it.
 SELECT id, title FROM tasks WHERE status = 'todo' AND due_date <= '2026-10-25';
 SELECT id, title FROM tasks WHERE status IN ('todo', 'in_progress');
 SELECT id, title FROM tasks WHERE title LIKE '%milk%';
+SELECT id, title FROM tasks WHERE NOT status = 'done';
 ```
 
-`AND`/`OR` bind with **three-valued logic**: a `NULL due_date` is neither true nor false —
+`AND`, `OR`, and `NOT` combine and invert conditions — and they bind with **three-valued
+logic**: a `NULL due_date` is neither true nor false —
 it's *unknown* — so the first query silently skips every task without a due date. Use
 `WHERE due_date IS NULL` to find those; `= NULL` never matches anything, ever.
 
@@ -584,6 +590,7 @@ the INNER/LEFT choice plus junction fan-out is where to look first.
 ```sql
 SELECT COUNT(*) FROM tasks;                       -- whole-table aggregate
 SELECT user_id, COUNT(*) AS n FROM tasks GROUP BY user_id;         -- one row PER group
+SELECT ROUND(AVG(LENGTH(title)), 1) FROM tasks;   -- AVG over an expression (titles, not ids)
 SELECT tg.name, COUNT(*) FROM tags tg
 LEFT JOIN task_tags tt ON tt.tag_id = tg.id
 GROUP BY tg.id
@@ -665,7 +672,7 @@ numbered order with `GRADED:` comments. Every expectation must match on a fresh 
 > the right side in `WHERE` instead of in the `ON` clause, which turns a `LEFT` join back
 > into an `INNER` one (a `NULL`-filled right column fails `WHERE`, removing the row).
 
-**Checkpoint:** Complete at least 20 of your own graded query exercises against your schema, covering filtering, sorting, pagination, `INNER JOIN`, `LEFT JOIN`, aggregates with `GROUP BY` and `HAVING`, and at least one subquery.
+**Checkpoint:** Complete at least 20 query exercises against your own schema, covering filtering, sorting, pagination, joins, aggregates, and at least one subquery.
 
 ## 8. Indexes, Query Plans, and Transactions
 
@@ -745,7 +752,7 @@ both transcripts as evidence.
 > Run `ROLLBACK;` to clear it, then start clean. The counterpart habit: never walk away from
 > a session with an open transaction — it can hold a write lock on the file.
 
-**Checkpoint:** Explain the purpose of an index, inspect a query plan, and demonstrate the behavior of `COMMIT` and `ROLLBACK`.
+**Checkpoint:** Explain the purpose of an index, inspect a query plan, and demonstrate both committed and rolled-back transactions.
 
 ## 9. SQL Injection and Parameterized Queries
 
@@ -821,16 +828,15 @@ literal email string that simply matches nothing. This is the rule, stated once:
 > the interpretation step entirely — and round 3 of the demo matters: a *legitimate* login
 > still returns 1 row, because parameters preserve intent and kill only misinterpretation.
 
-**Comparing the versions** — capture both, side by side, in one transcript:
+**Comparing the versions** — capture all three, side by side, in one transcript:
 vulnerable: `constructed:` line + **rows > 0** (bypass); parameterized: same payload +
 **rows = 0** (blocked); legitimate + parameterized: **rows = 1** (works). If your run shows
 `rows: 0` for the vulnerable query first, check you're in the module folder (wrong/empty
 `task.db`) before suspecting the attack.
 
-**Capture evidence of both outcomes.** Save the full run output (`node injection-demo.mjs
-> injection-evidence.txt` or paste into your evidence file): the vulnerable success *and* the
-parameterized block, in the same artifact — one without the other proves nothing. Your §10
-self-review requires this file.
+**Capture evidence of all three outcomes.** Save the full run output — run `node injection-demo.mjs > injection-evidence.txt` or paste into your evidence file — with the
+vulnerable success, the parameterized block, *and* the legitimate login in the same
+artifact: one without the others proves nothing. Your §10 self-review requires this file.
 
 **Build it (§9):** write `injection-demo.mjs` as above (or equivalent), run it, confirm the
 three expected outcomes (bypass > 0, blocked = 0, legit = 1), and capture the transcript.
@@ -842,7 +848,7 @@ Then vary one thing and re-run to prove you understand — e.g. change the paylo
 > current LTS and re-run. An `ExperimentalWarning: node:sqlite` line on stderr is *expected*
 > and harmless — it is not the attack failing.
 
-**Checkpoint:** Demonstrate that SQL injection succeeds against the vulnerable query and is blocked by the parameterized version, with evidence of both outcomes.
+**Checkpoint:** Demonstrate that the injection succeeds against the vulnerable query and is blocked by the parameterized version, with evidence of all three outcomes.
 
 ## 10. Final Integration, Documentation, and Self-Assessment
 
@@ -893,6 +899,10 @@ in this program — the check exists because eyes skim.)
 below, write your PR description from your §7 coverage table and evidence file names, then
 open it through your branch → PR → merge habit.
 
+**Self-assessment:** Can you explain primary versus foreign keys, model 1:N versus M:N
+relationships, write meaningful relational queries, use transactions safely, and prevent
+SQL injection through parameterized queries?
+
 **Concept self-test — say these out loud, unaided:**
 
 - *Primary key vs. foreign key:* PK = this row's unique identity (never NULL, never
@@ -925,5 +935,5 @@ is the entire point of doing SQL first.
 - [ ] I can explain primary vs. foreign keys, what an index is for, and how to model 1:N
       vs. M:N — unaided.
 - [ ] The SQL-injection demo actually succeeded against the vulnerable query, and the
-      parameterised fix actually blocked it — evidence captured, both outcomes.
+      parameterised fix actually blocked it — evidence captured, all three outcomes.
 - [ ] A Mermaid ERD exists in my README and matches the schema I actually built.

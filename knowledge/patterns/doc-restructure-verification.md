@@ -63,3 +63,16 @@
   `graphify query` resolves the bare name `training-material.md` to M01's node — six modules
   share that filename, so basename node identity shadows other modules' files. Query with
   module-qualified strings and read the `src=` attribute to confirm which file a node is.
+
+## A checkpoint's numbers are document-wide: grep the old value after an outline swap (2026-10-26, M06 rev)
+
+- The owner's new outline changed §9's checkpoint from "evidence of both outcomes" to
+  "all three outcomes." The 9 checkpoint swaps passed char-for-char — but the *same count*
+  still lived in three other places (intro deliverables list, §9's two prose paragraphs,
+  §10's DoD checklist), stating 2 where the contract now says 3. Headings and checkpoints
+  are gated; the prose that *agrees with* a checkpoint is not.
+- Cheap version: after any outline edit that adds, drops, or renumbers a quantity
+  ("both"→"three", "20+"→"25+", "1:N"→"1:N and 1:1"), `grep -i` the old value across the
+  whole file before closing the pass — the stale copies are always outside the edit span.
+- Generalization of M05's two-renderings class: the unit of consistency is not the edited
+  line, it's every line that *asserts the same fact*.
